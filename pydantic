@@ -1,0 +1,62 @@
+from pydantic import BaseModel,AnyUrl,HttpUrl, Field, field_validator, model_validator, computed_field
+from typing import List, Dict, Optional, Annotated, Self
+
+class Patient(BaseModel):
+    name : str
+    city : str
+    age: int = Field(gt=0,lt=130,strict=True)
+    condition : List[str] = Field(max_length=5)
+    contact : Dict[str, str]
+    website : Annotated[Optional[AnyUrl], Field(default=None, title="website",examples="https://www.google.com")]
+    weight : Annotated[float,Field(title='kg')]
+    height : Annotated[float,Field(title='feet')]
+    
+    @field_validator('name')
+    @classmethod
+    def email_validator(cls, value):
+        name_prefix = ['ullah','hassan']
+        v = value.split('.')[-1]
+        if v not in name_prefix:
+            raise ValueError('Not a valid name')
+        return value.upper()
+    
+    @model_validator(mode='after')
+    def elder_contact(self)->Self:
+        if self.age>60 and 'emergency' not in self.contact:
+            raise ValueError('Have to have emergency on contact if age greater 60')
+        return self
+
+    @computed_field
+    @property
+    def bmi(self) -> float:
+        bmi = self.weight*self.height
+        return bmi
+
+                
+
+def add_patient_info(patient:Patient):
+    print(patient.name)
+    print(patient.city)
+    print(patient.age)
+    print(patient.condition)
+    print(patient.contact)
+    print(patient.website)
+    print(patient.bmi)
+    
+    return None
+
+add_patient_info(
+    Patient(name='alu.ullah',
+            city='oi',
+            age=65,
+            condition=['fever','caugh'],
+            contact={
+                'mobile': '012',
+                'email': 'ralv@gmail.com',
+                'emergency': '123'
+            },
+            website= "https://www.google.com",
+            height=19.2,
+            weight=20.5
+            )
+)
