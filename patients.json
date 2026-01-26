@@ -48,5 +48,65 @@
         "weight": 21.0,
         "bmi": 12.7,
         "verdict": "fit"
+    },
+    "1": {
+        "name": "John",
+        "city": "NY",
+        "age": 25,
+        "gender": "Male",
+        "height": 1.75,
+        "weight": 70.0,
+        "bmi": 22.857142857142858,
+        "verdict": "Normal weight"
+    },
+    "P006": {
+        "name": "string",
+        "city": "string",
+        "age": 0,
+        "gender": "string",
+        "height": 20.5,
+        "weight": 5.3,
+        "bmi": 0.012611540749553837,
+        "verdict": "Underweight"
+    },
+    "P007": {
+        "name": "s",
+        "city": "syl",
+        "age": 0,
+        "gender": "M",
+        "height": 1.0,
+        "weight": 2.0,
+        "bmi": 2.0,
+        "verdict": "Underweight"
+    },
+    "P010": {
+        "name": "Karim",
+        "city": "syl",
+        "age": 23,
+        "gender": "Gay",
+        "height": 23.4,
+        "weight": 12.3,
+        "bmi": 0.02246329169406093,
+        "verdict": "Underweight"
+    },
+    "P0012": {
+        "name": "Karim",
+        "city": "syl",
+        "age": 23,
+        "gender": "Male",
+        "height": 23.4,
+        "weight": 12.3,
+        "bmi": 0.02246329169406093,
+        "verdict": "Underweight"
+    },
+    "P013": {
+        "name": "Karim",
+        "city": "syl",
+        "age": 23,
+        "gender": "Male",
+        "height": 23.4,
+        "weight": 12.3,
+        "bmi": 0.02246329169406093,
+        "verdict": "Underweight"
     }
 }

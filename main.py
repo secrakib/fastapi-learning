@@ -1,9 +1,19 @@
 from fastapi import FastAPI, Path, HTTPException, Query
 import json
+from pydantic import BaseModel,Field,computed_field
+from typing import Annotated,Literal
+from fastapi.responses import JSONResponse
 
 app = FastAPI()
 
-def load_data():
+def load_data()->dict:
+    '''
+    Take patients json file from folder and 
+    convert to dict
+    
+    :return: dict containing data of patients.json 
+    :rtype: dict
+    '''
     with open('patients.json', 'r') as file:
         data = json.load(file)
     return data
@@ -58,6 +68,7 @@ def delete_info(id:str):
         return {'removed patient_info id': deleted}
 
 
+
 @app.post('/create_info/{id}')
 def create_info(id:str,name:str,city:str,age:int,gender:str,height:float,weight:float,bmi:float,verdict:str):
 
@@ -104,4 +115,48 @@ def sort_info(id: str = Path(...,description='Patient id'), sort_by: str = Query
     return sorted_data
 
 
+
+class Create_info_with_v(BaseModel):
+    id : Annotated[str,Field(...,description='id of patient',examples=['P001'])]
+    name: Annotated[str,Field(...,description='name of patient',examples=['Karim'])]
+    city: Annotated[str,Field(...,description='city of patient',examples=['syl'])]
+    age: Annotated[int,Field(...,description='age of patient',examples=[23])]
+    gender:Annotated[Literal['Male','Female'],Field(...,description='id of patient',examples=['Male'])]
+    height:Annotated[float,Field(...,description='height of patient',examples=[23.4])]
+    weight: Annotated[float,Field(...,description='weight of patient',examples=[12.3])]
+
+    @computed_field
+    @property
+    def bmi(self)->float:
+        bmi = self.weight / (self.height ** 2)
+        return bmi
     
+    @computed_field
+    @property
+    def verdict(self)->str:
+        if self.bmi < 18.5:
+            verdict = "Underweight"
+        elif self.bmi < 25:
+            verdict = "Normal weight"
+        elif self.bmi < 30:
+            verdict = "Overweight"
+        else:
+            verdict = "Obese"
+
+        return verdict
+
+
+@app.post('/create_info_with_v')
+def create_info(info: Create_info_with_v):
+
+
+    data = load_data()
+
+    if info.id in data:
+        raise HTTPException(409,detail='Patient exists')
+    
+    data[info.id] = info.model_dump(exclude='id')
+
+    unload_data(data)
+
+    return JSONResponse(status_code=201, content= {'Patient_id':info.id, 'Data':data[info.id]})
