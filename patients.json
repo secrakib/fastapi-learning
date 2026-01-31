@@ -40,14 +40,14 @@
         "verdict": "Obese"
     },
     "P001": {
-        "name": "wad",
+        "name": "rakib",
         "city": "syl",
-        "age": 24,
-        "gender": "male",
-        "height": 25.0,
-        "weight": 21.0,
-        "bmi": 12.7,
-        "verdict": "fit"
+        "age": 2,
+        "gender": "Male",
+        "height": 89.3,
+        "weight": 23.0,
+        "bmi": 0.002884196983129956,
+        "verdict": "Underweight"
     },
     "1": {
         "name": "John",

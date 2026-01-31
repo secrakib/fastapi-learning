@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Path, HTTPException, Query
 import json
-from pydantic import BaseModel,Field,computed_field
-from typing import Annotated,Literal
+from pydantic import BaseModel,Field,computed_field,AnyUrl
+from typing import Annotated,Literal,Optional,List,Dict
 from fastapi.responses import JSONResponse
 
 app = FastAPI()
@@ -19,6 +19,14 @@ def load_data()->dict:
     return data
 
 def unload_data(data:dict)-> dict:
+    '''
+    Docstring for unload_data
+    
+    :param data: Full json data in dict format
+    :type data: dict
+    :return: full dict 
+    :rtype: dict
+    '''
     with open('patients.json', 'w') as file:
             json.dump(data, file, indent=4)
     return None
@@ -120,10 +128,10 @@ class Create_info_with_v(BaseModel):
     id : Annotated[str,Field(...,description='id of patient',examples=['P001'])]
     name: Annotated[str,Field(...,description='name of patient',examples=['Karim'])]
     city: Annotated[str,Field(...,description='city of patient',examples=['syl'])]
-    age: Annotated[int,Field(...,description='age of patient',examples=[23])]
+    age: Annotated[int,Field(...,description='age of patient',gt=0,examples=[23])]
     gender:Annotated[Literal['Male','Female'],Field(...,description='id of patient',examples=['Male'])]
-    height:Annotated[float,Field(...,description='height of patient',examples=[23.4])]
-    weight: Annotated[float,Field(...,description='weight of patient',examples=[12.3])]
+    height:Annotated[float,Field(...,description='height of patient',gt=0,examples=[23.4])]
+    weight: Annotated[float,Field(...,description='weight of patient',gt=0,examples=[12.3])]
 
     @computed_field
     @property
@@ -131,6 +139,8 @@ class Create_info_with_v(BaseModel):
         bmi = self.weight / (self.height ** 2)
         return bmi
     
+    
+
     @computed_field
     @property
     def verdict(self)->str:
@@ -160,3 +170,45 @@ def create_info(info: Create_info_with_v):
     unload_data(data)
 
     return JSONResponse(status_code=201, content= {'Patient_id':info.id, 'Data':data[info.id]})
+
+
+class Update(BaseModel):
+    name : Optional[str] = None
+    city : Optional[str] = None
+    age: Annotated[Optional[int],Field(default=None)]
+    gender : Optional[Literal['Male','Female']] = Field(default=None)
+    weight : Annotated[Optional[float],Field(default=None,title='kg')]
+    height : Annotated[Optional[float],Field(default=None,title='feet')]
+
+
+@app.put('/update_info1/{id}')
+def update_info(patient:Update,id:str= Path(...,title='id of patient',example='P001')):
+    
+
+    data = load_data()
+    
+    if id not in data:
+        raise HTTPException(status_code=404, detail='Item not found')
+    
+    old_info = data[id]
+
+    
+    info_need_update = patient.model_dump(exclude_unset=True)
+
+    merged_info = old_info | info_need_update
+
+    merged_validated_info = Create_info_with_v(id=id,**merged_info)
+
+    updated_info = merged_validated_info.model_dump(exclude='id')
+
+    
+
+    data[id] = updated_info
+
+    unload_data(data)
+
+    return JSONResponse(status_code=201, content= {'Patient_id':id, 'Data':data[id]})
+    
+
+
+
